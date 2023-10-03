@@ -1,27 +1,28 @@
 rm(list=ls())
-df <- read.table('D:/SynologyDrive/Didos_self/Career/Future/blog_medium/MaxLikelihhod_vs_LeastSquares/data/data_mk_norm_sd_81.txt', sep = '\t', header = T)
+library(StatsChitran) # package available on github
+df <- read.table('D:/SynologyDrive/Didos_self/Career/Future/blog_medium/MaxLikelihhod_vs_LeastSquares/data/data_mk_norm_sd_3.txt', sep = '\t', header = T)
 plot(df$X, df$Y, type = 'b', col=rgb(0,0,1,0.1), pch=19)
 
-#OLS estimation
+#least squares estimation
 fn <- function(v){
-  y <- v[1]*df$X^2 + v[2]*df$X + v[3]
-  e <- df$Y - y
-  TSE <- sum(e^2)
+  y <- v[1]*df$X^2 + v[2]*df$X + v[3] #objective function has co-efficient a, b and c, embedded in vector v
+  e <- df$Y - y #the error term
+  TSE <- sum(e^2) #the sum of squared errors
   return(TSE)
-}
-L <- optim(c(1, 2, 3), fn)
-val_OLS <- L$par
+}#The objective function for the optimization
+L <- optim(c(1, 2, 3), fn) #the optimization step
+val_LSE <- L$par
 
-#MLE estimation
+#log-likelihood estimation
 f <- function(v){
-  y <- v[1]*df$X^2 + v[2]*df$X + v[3]
-  e <- df$Y - y
+  y <- v[1]*df$X^2 + v[2]*df$X + v[3] #objective function has co-efficient a, b and c, embedded in vector v. 
+  e <- df$Y - y #the error term
+  #The function "gauss" used in the next line is available with the StatsChitran package on github
   G <- gauss(e, sig =  v[4], mu = 0, probability = T) #likelihood vector that each corresponding error term belongs to a gaussian with zero mean and a fixed standard deviation
-  #LE = prod(G) #Likelihood estimate
-  log_LE <- sum(log(G))
+  log_LE <- sum(log(G)) #log likelihood term 
   return(log_LE)
-}
-L_MLE <- optim(c(1, 2, 3, 10), f, control = list(fnscale = -1))
-val_MLE <- L_MLE$par
+}#The objective function for the optimization
+L_LLE <- optim(c(1, 2, 3, 10), f, control = list(fnscale = -1)) #the optimization step
+val_LLE <- L_LLE$par
 
 
